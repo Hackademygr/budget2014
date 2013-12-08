@@ -3,6 +3,7 @@ body {
     margin: auto;
     position: relative;
     width: 600px;
+    float: left;
 }
 .node {
     border: solid 1px white;
