@@ -3,6 +3,7 @@ body {
     margin: auto;
     position: relative;
     width: 600px;
+    float: left;
 }
 form {
     position: absolute;
