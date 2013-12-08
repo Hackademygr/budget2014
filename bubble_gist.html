@@ -1,0 +1,308 @@
+<!--budget_gr_2014-->
+<!DOCTYPE html>
+<meta charset="utf-8">
+<div id="tooltip" class="hidden">
+    <p class="title"></p>
+    <p class="value"></p>
+    <p class="percent"></p>
+</div>
+<style>
+body {
+    font-family:sans-serif;
+    margin: auto;
+    position: relative;
+    width: 600px;
+    float: left;
+}
+form {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.default_circle {
+    stroke:black;
+    stroke-width:0;
+    opacity:0.6;
+
+}
+
+.selected_circle {
+    stroke:black;
+    stroke-width:2;
+    opacity:1.0;
+}
+
+.titlos {
+    font-size:1em;
+    display:none
+}
+
+
+.node {
+    border: solid 1px white;
+    font: 10px sans-serif;
+    line-height: 12px;
+    overflow: hidden;
+    position: absolute;
+    text-indent: 2px;
+}
+#tooltip {
+    position: absolute;
+    width: 150px;
+    height: auto;
+    padding: 10px;
+    background-color: white;
+    opacity:1.0;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border:1px solid black;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+#tooltip.hidden {
+    display: none;
+}
+
+.title {
+    margin: 0;
+    font-family: sans-serif;
+    font-weight:bold;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+.value {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+}
+
+
+.percent {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+}
+</style>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+var budget = {
+    "name": "Σύνολο",
+        "children": [{
+        "name": "Προεδρία της Δημοκρατίας",
+            "size": 3887000,
+            "change": "-6"
+    }, {
+        "name": "Βουλή των Ελλήνων",
+            "size": 141898000,
+            "change": "-5"
+    }, {
+        "name": "Υπουργείο Διοικητικής Μεταρρύθμισης και Ηλεκτρονικής Διακυβέρνησης",
+            "size": 50010000,
+            "change": "-49"
+    }, {
+        "name": "Υπουργείο Εσωτερικών",
+            "size": 3395411000,
+            "change": "-15"
+    }, {
+        "name": "Υπουργείο Εξωτερικών",
+            "size": 322808000,
+            "change": "-6"
+    }, {
+        "name": "Υπουργείο Εθνικής Άμυνας",
+            "size": 3112000000,
+            "change": "-20"
+    }, {
+        "name": "Υπουργείο Υγείας",
+            "size": 4382955000,
+            "change": "-44"
+    }, {
+        "name": "Υπουργείο Δικαιοσύνης, Διαφάνειας και Ανθρωπίνων Δικαιωμάτων",
+            "size": 580539000,
+            "change": "-3"
+    }, {
+        "name": "Υπουργείο Παιδείας και Θρησκευμάτων",
+            "size": 4587329000,
+            "change": "-8"
+    }, {
+        "name": "Υπουργείο Πολιτισμού και Αθλητισμού",
+            "size": 298000000,
+            "change": "-11"
+    }, {
+        "name": "Υπουργείο Οικονομικών",
+            "size": 84471143000,
+            "change": "+3"
+    }, {
+        "name": "Υπουργείο Μακεδονίας και Θράκης",
+            "size": 5597000,
+            "change": "-20"
+    }, {
+        "name": "Υπουργείο Αγροτικής Ανάπτυξης και Τροφίμων",
+            "size": 506317000,
+            "change": "-30"
+    }, {
+        "name": "Υπουργείο Περιβάλλοντος, Ενέργειας και Κλιματικής Αλλαγής",
+            "size": 70230000,
+            "change": "-2"
+    }, {
+        "name": "Υπουργείο Εργασίας, Κοινωνικής Ασφάλισης και Πρόνοιας",
+            "size": 12238898000,
+            "change": "-18"
+    }, {
+        "name": "Υπουργείο Ανάπτυξης και Ανταγωνιστικότητας",
+            "size": 65096000,
+            "change": "-27"
+    }, {
+        "name": "Υπουργείο Υποδομών, Μεταφορών και Δικτύων",
+            "size": 562027000,
+            "change": "-37"
+    }, {
+        "name": "Υπουργείο Ναυτιλίας και Αιγαίου",
+            "size": 295570000,
+            "change": "-9"
+    }, {
+        "name": "Υπουργείο Δημόσιας Τάξης και Προστασίας του Πολίτη",
+            "size": 1742378000,
+            "change": "-3"
+    }, {
+        "name": "Υπουργείο Τουρισμού",
+            "size": 26966000,
+            "change": "-18"
+    }]
+};
+
+var diameter = 550,
+    format = d3.format(",d"),
+    color = d3.scale.category20c();
+
+var bubble = d3.layout.pack()
+    .sort(null)
+    .size([diameter, diameter])
+    .padding(1.5);
+
+
+var svg = d3.select("body").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+    .attr("class", "bubble");
+
+var realcolor = d3.scale.linear()
+    .domain([-50, 0, 10])
+    .range(["red", "white", "green"]);
+
+var node = svg.selectAll(".node")
+    .data(bubble.nodes(classes(budget))
+    .filter(function (d) {
+    return !d.children;
+}))
+    .enter().append("g")
+    .attr("class", "node")
+    .attr("transform", function (d) {
+    return "translate(" + d.x + "," + d.y + ")";
+});
+
+node.append("circle")
+    .attr("r", function (d) {
+    return d.r;
+})
+    .attr("class","default_circle")
+    .style("fill", function (d) {
+    return realcolor(d.cambio);
+});
+
+node.append("text")
+    .attr("class","titlos")
+    .attr("dy", ".3em")
+    .style("text-anchor", "middle")
+    .text(function (d) {
+    return d.className.substring(0, d.r / 3);
+});
+
+node.on("mousemove", function (d) {
+    var nodeSelection = d3.select(this);
+
+
+    //change the class of the selected circle object
+    nodeSelection.select("circle")
+        .attr("class","selected_circle");
+    
+    //Get this bar's x/y values, then augment for the tooltip
+    var xPosition = parseFloat(d.x);
+    var yPosition = parseFloat(d.y);
+
+    var coordinates = [0, 0];
+    coordinates = d3.mouse(this);
+    var mouseX = coordinates[0];
+    var mouseY = coordinates[1];
+    
+    var title = d.className;
+    var content = "Προϋπολογισμός (2014): " + format(d.value) + "€";
+    var percent = "Μεταβολή (με 2013): " + d.cambio+"%";
+    
+    
+    d3.select("#tooltip")
+        .style("left", d3.event.pageX + "px")
+        .style("top", d3.event.pageY + "px")
+        .select(".title")
+        .text(title)
+    
+    d3.select("#tooltip")
+        .select(".value")
+        .text(content)
+              
+    d3.select("#tooltip")
+        .select(".percent")
+        .text(percent)
+
+    //Show the tooltip
+    d3.select("#tooltip").classed("hidden", false);
+});
+
+node.on("mouseout", function (d) {
+    var nodeSelection = d3.select(this);
+
+    
+    //reset the class of the de-selected circle object
+    nodeSelection.select("circle")
+        .attr("class","default_circle");
+    
+    nodeSelection.attr("stroke-width", "0px");
+    
+    //Hide the tooltip
+    d3.select("#tooltip").classed("hidden", true);
+});
+
+
+// Returns a flattened hierarchy containing all leaf nodes under the root.
+function classes(root) {
+    var classes = [];
+
+    function recurse(name, node) {
+        if (node.children) node.children.forEach(function (child) {
+            recurse(node.name, child);
+        });
+        else classes.push({
+            packageName: name,
+            className: node.name,
+            value: node.size,
+            cambio: node.change
+        });
+    }
+
+    recurse(null, root);
+    return {
+        children: classes
+    };
+}
+
+d3.select(self.frameElement).style("height", diameter + "px");
+
+</script>
