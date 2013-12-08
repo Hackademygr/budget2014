@@ -197,8 +197,8 @@ node.on("mousemove", function (d) {
       d3.select(this)
         .attr("class","node_selected");
 
-    var xPosition = d3.event.pageX + 5;
-    var yPosition = d3.event.pageY + 5;
+    var xPosition = d3.event.pageX - 160;
+    var yPosition = d3.event.pageY - 60;
 
     var coordinates = [0, 0];
     coordinates = d3.mouse(this);

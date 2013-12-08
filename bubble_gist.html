@@ -235,13 +235,8 @@ node.on("mousemove", function (d) {
         .attr("class","selected_circle");
     
     //Get this bar's x/y values, then augment for the tooltip
-    var xPosition = parseFloat(d.x);
-    var yPosition = parseFloat(d.y);
-
-    var coordinates = [0, 0];
-    coordinates = d3.mouse(this);
-    var mouseX = coordinates[0];
-    var mouseY = coordinates[1];
+    var xPosition = d3.event.pageX - 160;
+    var yPosition = d3.event.pageY - 60;
     
     var title = d.className;
     var content = "Προϋπολογισμός (2014): " + format(d.value) + "€";
@@ -249,8 +244,8 @@ node.on("mousemove", function (d) {
     
     
     d3.select("#tooltip")
-        .style("left", d3.event.pageX + "px")
-        .style("top", d3.event.pageY + "px")
+        .style("left", xPosition + "px")
+        .style("top", yPosition + "px")
         .select(".title")
         .text(title)
     
