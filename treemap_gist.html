@@ -153,8 +153,8 @@ var margin = {
     left: 1
 },
 
-width = 450 - margin.left - margin.right,
-    height = 340 - margin.top - margin.bottom;
+width = 600 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
 
 var color = d3.scale.category20c();
 
@@ -206,8 +206,9 @@ node.on("mousemove", function (d) {
     var mouseY = coordinates[1];
 
     var title = d.name;
-
-    var content = "Προϋπολογισμός (2014): " + d.value + "€";
+    format = d3.format(",d");
+ 
+    var content = "Προϋπολογισμός (2014): " + format(d.value) + "€";
     var percent = "Μεταβολή (απο 2013): " + d.change + "%";
 
     d3.select("#tooltip")
